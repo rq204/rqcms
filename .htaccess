@@ -1,0 +1,20 @@
+#关于的apache mod_rewrite的设置可以参考资料：http://httpd.apache.org/docs/2.0/mod/mod_rewrite.html
+<IfModule mod_rewrite.c>
+
+#设置了目录级重写的基准URL
+RewriteEngine On
+RewriteBase /
+
+#L意思为立即停止重写操作，并不再应用其他重写规则
+RewriteRule ^/+?$ /index.php [L]
+RewriteRule ^$ /index.php [L]
+
+#没有找到的文件或是目录均用index.php来处理
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ /index.php [L]
+
+#禁止访问除根目录下的其它php,sql,file文件
+RewriteRule ^[^/]*?/.*?\.(php|sql|file|txt).*?$ /index.php [L]
+
+</IfModule>

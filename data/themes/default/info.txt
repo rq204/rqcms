@@ -1,0 +1,5 @@
+﻿Template Name: RQCMS默认主题
+Template Version: 1.0
+Template Description: 小文发布的一款主题
+Template Author: rq204
+Template Author URL: http://www.rqcms.com

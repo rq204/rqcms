@@ -1,0 +1,80 @@
+body {
+	margin: 20px;
+	line-height: 140%;
+	color: #000000;
+	font: 14px "Georgia", "Verdana", "Tahoma", "sans-serif", "宋体";
+	background-color: #cdd6dd;
+	text-align: center;
+}
+a {
+	color: #333399; 
+	text-decoration: none;
+}
+a:hover {
+	color: #CC0000; 
+}
+td {
+	font: 14px "Georgia", "Verdana", "Tahoma", "sans-serif", "宋体";
+	line-height: 160%;
+	color: #000000;
+}
+div {
+	font: 14px "Georgia", "Verdana", "Tahoma", "sans-serif", "宋体";
+	line-height: 160%;
+	color: #000000;
+}
+#main {
+	background-color: #fff;
+	text-align: left;
+	padding: 20px;
+	width: 600px;
+	border: 1px solid #ccc;
+	margin-bottom: 20px;
+}
+.title {
+	font-size: 18px;
+	font-weight: bold;
+}
+form {
+	margin: 0px;
+	padding: 0px;
+}
+.formfield {
+	font: 14px "Georgia", "Verdana", "Tahoma", "sans-serif", "宋体";
+	font-weight: bold;
+	background-color: #fff;
+	padding: 3px;
+	border: 1px solid #BFBFBF;
+	margin-right: 10px;
+}
+.formbutton {
+	font: 14px "Georgia", "Verdana", "Tahoma", "sans-serif", "宋体";
+	font-weight: bold;
+	padding: 3px;
+}
+.install_main {
+	width: 500px;
+	margin-right: auto;
+	margin-left: auto;
+	background-color: #fff;
+	padding: 30px;
+	margin-top: 10%;
+	border: 1px solid #333333;
+	text-align: center;
+}
+.install_logo{
+	border: 1px solid #333333;
+}
+.p2 {
+	text-align: left;
+	font-weight: bold;
+	color: #666666;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+.copyright {
+	font-size: 12px;
+	text-align: center;
+	line-height: 30px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+}
