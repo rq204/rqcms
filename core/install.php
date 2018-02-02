@@ -1,19 +1,17 @@
 <?php
-if(!defined('RQ_ROOT')) exit('Access Denied');
 $lockfile=RQ_DATA.'/install.lock';
 $sqlfile=RQ_CORE.'/resource/install.sql';
-$configfile=RQ_CORE.'/resource/conig.sample.php';
 $rqcms_coredir=basename(RQ_CORE);
 $rqcms_datadir= basename(RQ_DATA);
-$rqcms_version=RQ_VERSION;
-$dbcharset='Utf-8';
+$rqcms_version=RQ_VERS;
+include RQ_CORE.'/library/func.convert.php';
+header('Content-Type: text/html; charset=UTF-8');
 echo <<<EOT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>RQCMS $rqcms_version 安装脚本</title>
-<link href="$rqcms_coredir/resource/install.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="$rqcms_coredir/manager/editor/jquery-1.4.4.min.js"></script>
 <script type="text/javascript">
 function checkNull()
@@ -41,6 +39,89 @@ function checkNull()
 	return true;
 }
 </script>
+<style>
+body {
+	margin: 20px;
+	line-height: 140%;
+	color: #000000;
+	font: 14px "Georgia", "Verdana", "Tahoma", "sans-serif", "宋体";
+	background-color: #cdd6dd;
+	text-align: center;
+}
+a {
+	color: #333399; 
+	text-decoration: none;
+}
+a:hover {
+	color: #CC0000; 
+}
+td {
+	font: 14px "Georgia", "Verdana", "Tahoma", "sans-serif", "宋体";
+	line-height: 160%;
+	color: #000000;
+}
+div {
+	font: 14px "Georgia", "Verdana", "Tahoma", "sans-serif", "宋体";
+	line-height: 160%;
+	color: #000000;
+}
+#main {
+	background-color: #fff;
+	text-align: left;
+	padding: 20px;
+	width: 600px;
+	border: 1px solid #ccc;
+	margin-bottom: 20px;
+	margin:auto;
+}
+.title {
+	font-size: 18px;
+	font-weight: bold;
+}
+form {
+	margin: 0px;
+	padding: 0px;
+}
+.formfield {
+	font: 14px "Georgia", "Verdana", "Tahoma", "sans-serif", "宋体";
+	font-weight: bold;
+	background-color: #fff;
+	padding: 3px;
+	border: 1px solid #BFBFBF;
+	margin-right: 10px;
+}
+.formbutton {
+	font: 14px "Georgia", "Verdana", "Tahoma", "sans-serif", "宋体";
+	font-weight: bold;
+	padding: 3px;
+}
+.install_main {
+	width: 500px;
+	margin-right: auto;
+	margin-left: auto;
+	background-color: #fff;
+	padding: 30px;
+	margin-top: 10%;
+	border: 1px solid #333333;
+	text-align: center;
+}
+.install_logo{
+	border: 1px solid #333333;
+}
+.p2 {
+	text-align: left;
+	font-weight: bold;
+	color: #666666;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+.copyright {
+	font-size: 12px;
+	text-align: center;
+	line-height: 30px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+}
+</style>
 </head>
 <body>
 <div id="main">
@@ -51,7 +132,7 @@ if(file_exists($lockfile))
 }
 else
 {
-	$cacheDir=RQ_DATA.'/cache/';
+	$cacheDir=RQ_DATA.'/caches/';
 	if(TestWrite($cacheDir))
 	{
 		$sql=file_get_contents($sqlfile);
@@ -63,37 +144,20 @@ else
 			if(empty($username)) exit('用户名不得为空');
 			if(empty($password)) exit('密码不得为空');
 			if($password!=$comfirpassword) exit('两次输入的密码必须一样!');
-			$password=md5($password);
+			$password=md5(md5($password));
 			$tablenum=0;
-			runquery($sql);
+			runquery($sql,$dbprefix);
 			echo "成功创建{$tablenum}个表<br />";
-			$DB->query("Insert into ".DB_PREFIX."user (`hostid`,`username`,`password`,`groupid`,`regdateline`,`regip`,`qq`) values ('1','$username','$password','4','$timestamp','$onlineip','285576545')");
+			$DB->query("Insert into {$dbprefix}user (`username`,`password`,`groupid`) values ('$username','$password','1')");
 			echo "成功添加管理员帐号{$username}<br />";
-			file_put_contents($lockfile,md5(RQ_HOST));
-			$DB->query("update ".DB_PREFIX."host set `host`='".RQ_HOST."'");
-			$DB->query("INSERT INTO `".DB_PREFIX."article` (`aid`, `hostid`, `cateid`, `userid`, `title`, `keywords`, `tag`, `url`, `excerpt`, `dateline`, `modified`, `views`, `comments`, `attachments`, `closed`, `visible`, `stick`, `score`, `password`, `ban`) VALUES (NULL, '1', '1', '1', '感谢您使用RQCMS', '', 'rqcms', 'welcome', '','$timestamp', '$timestamp', '1', '0', '0',  '0', '1', '1', '0', '', '0')");
-			$DB->query("INSERT INTO `".DB_PREFIX."comment` (`cid`, `hostid`, `articleid`, `userid`, `username`, `dateline`, `content`, `ipaddress`, `score`, `visible`, `ban`) VALUES (1, 1, 1, 1, '$username', '$timestamp', '测试评论', '$onlineip', 0, 1, 0)");
-			$DB->query('Insert into `'.DB_PREFIX."content` (`articleid`,`content`) values ('1','感谢您使用RQCMS')");
-			hosts_recache();
-			$hosts=include RQ_DATA.'/cache/hosts.php';
-			$host=$hosts[RQ_HOST];
-			$hostid=1;
-			filemaps_recache();
-			plugins_recache();
-			links_recache();
-			cates_recache();
-			vars_recache();
-			$mapArr= @include RQ_DATA.'/cache/map_'.$host['host'].'.php';
-			$cateArr=@include RQ_DATA.'/cache/cate_'.$host['host'].'.php';
-			rss_recache();
-			stick_recache();
-			pics_recache();
-			latest_recache();
-			comments_recache();
-			redirect_recache();
-			hot_recache();
-			search_recache();
-			echo "成功更新系统缓存<br />安装完毕,点击这里进入<a href='admin.php'>管理后台</a>";
+			$DB->query("INSERT INTO `{$dbprefix}article` (`aid`,  `cateid`, `title`, `tag`, `excerpt`, `views` ) VALUES (NULL,'1', '感谢您使用RQCMS', 'rqcms', '', '1')");
+			$DB->query("INSERT INTO `{$dbprefix}comment` (`cid`,  `articleid`, `userid`, `username`,`content`, `ipaddress`) VALUES (1, 1, 1, '$username', '测试评论', '$onlineip')");
+			$DB->query("Insert into `{$dbprefix}content` (`articleid`,`content`) values ('1','感谢您使用RQCMS')");
+			$DB->query("Insert Into `{$dbprefix}option` (`name`,`value`) values ('name','又一个RQCMS'),('theme','default'),('per_page_articles','10'),('search_list_pages',50),('keywords',''),('description',''),('article_list_pages',100)");
+			setting_recache();
+			category_recache();
+			file_put_contents($lockfile,'installed');
+			exit("成功更新系统缓存<br />安装完毕,点击这里进入<a href='/admin/'>管理后台</a>");
 		}
 		else
 		{
@@ -103,21 +167,13 @@ else
 			}
 			else
 			{
-				preg_match_all("/CREATE TABLE `([a-z0-9_]+)`/",$sql,$dataarr);
-				$dbarrs=$dataarr[1];
+				//preg_match_all("/CREATE TABLE `([a-z0-9_]+)`/",$sql,$dataarr);
+				//$dbarrs=$dataarr[1];
 				$tables=$DB->query("show tables");
-				$dbtables=array();
-				while($dbs=$DB->fetch_array($tables))
-				{
-					$temp=array_values($dbs);
-					$dbtables[]=$temp[0];
-				}
-				$same=array_intersect($dbarrs,$dbtables);
+				$dbtables=GetTables();
 				$info='';
-				if(count($same)>0)
-				{
-					$info='<font color=\'red\'>程序检测到数据库中已经安装过RQCMS,如果继续,原来的数据将会被全部清空,请慎重操作!</font>';
-				}
+				if(in_array('rqcms_host',$dbtables)) $info='<font color=\'red\'>程序检测到数据库中已经安装过RQCMS,如果继续,原来的数据将会被全部清空,请慎重操作!</font>';
+				//$same=array_intersect($dbarrs,$dbtables);
 echo <<<EOT
 	<form method="post" action="install.php">
 	<p class="title">设置管理员账号</p>
@@ -150,36 +206,16 @@ EOT;
 	}
 	else
 	{
-		echo "您的网站缓存目录{$rqcms_datadir}/cache不可写,请修改其权限为777";
+		echo "您的网站缓存目录{$rqcms_datadir}/caches不可写,请修改其权限为777";
 	}
 }
 
 echo <<<EOT
 </div>
-<strong>Powered by RQCMS $rqcms_version (C) 2010-2012 RQCMS.COM</strong>
+<strong>Powered by RQCMS $rqcms_version (C) 2010-2018 RQCMS.COM</strong>
 </body>
 </html>
 EOT;
-
-function runquery($sql) {
-	global $dbcharset, $DB, $tablenum;
-	$sql = str_replace("\r", "\n", str_replace('`rqcms_', '`'.DB_PREFIX, $sql));
-	$ret = explode(";\n", trim($sql));
-	unset($sql);
-	foreach($ret as $query) {
-		$query = trim($query);
-		if($query) {
-			if(substr($query, 0, 12) == 'CREATE TABLE') {
-				$name = preg_replace("/CREATE TABLE `([a-z0-9_]+)` \(.*/is", "\\1", $query);
-				$DB->query($query);
-				echo '创建表 '.$name.' ... <font color="#0000EE">成功</font><br />';
-				$tablenum++;
-			} else {
-				$DB->query($query);
-			}
-		}
-	}
-}
 
 function TestWrite($d)
 {
@@ -194,5 +230,29 @@ function TestWrite($d)
 		else return false;
 	}
 }
-exit();
-?>
+//获取表中的所有字段
+function GetTableField($table)
+{
+	global $DB,$dbprefix;
+	$arrlist=array();
+	$sqlColumns = $DB->query("SHOW COLUMNS FROM ".$dbprefix."$table");
+	while($re=$DB->fetch_array($sqlColumns))
+	{
+		$arrlist[]=$re['Field'];
+	}
+	return $arrlist;
+}
+
+///获取所有表名
+function GetTables()
+{
+	global $DB;
+	$dbtables=array();
+	$tables=$DB->query("show tables");
+	while($dbs=$DB->fetch_array($tables))
+	{
+		$temp=array_values($dbs);
+		$dbtables[]=$temp[0];
+	}
+	return $dbtables;
+}

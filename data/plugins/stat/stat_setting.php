@@ -4,11 +4,11 @@
 //配置设置界面,需要做一个tr，界面代码参考core\manager\view\plugin.php
 function stat_html_view()
 {
-	global $DB,$hostid;
-	$arr=$DB->fetch_first('select * from '.DB_PREFIX."plugin where `hostid`=$hostid and `file`='stat'");
+	global $DB,$admin_url,$dbprefix;
+	$arr=$DB->fetch_first("select * from {$dbprefix}plugin where `file`='stat'");
 	$code=isset($arr['config'])?$arr['config']:'';
 print <<<EOT
-<form action="admin.php?file=plugin&action=setting" method="post">
+<form action="{$admin_url}?file=plugin&action=setting" method="post">
 <input type="hidden" value="stat" name="plugin">
 	<tr class="tdbheader">
     <td colspan="2">统计代码设置</td>
@@ -27,10 +27,10 @@ addAction('admin_plugin_setting_view','stat_html_view');
 //保存统计代码
 function stat_code_save()
 {
-	global $DB,$hostid;
+	global $DB,$admin_url,$dbprefix;
 	$code=$_POST['stat_code'];
-	$DB->query('update '.DB_PREFIX."plugin set `config`='$code' where hostid=$hostid and `file`='stat'");
-	plugins_recache();
-	redirect('统计代码已成功更新','admin.php?file=plugin&action=setting&plugin=stat');
+	$DB->query("update {$dbprefix}plugin set `config`='$code' where `file`='stat'");
+	setting_recache();
+	redirect('统计代码已成功更新',$admin_url.'?file=plugin&action=setting&plugin=stat');
 }
 addAction('admin_plugin_setting_save','stat_code_save');

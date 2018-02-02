@@ -1,6 +1,6 @@
 <?php
 //先查询数据库中的插件
-$pluginsquery=$DB->query("Select * from ".DB_PREFIX."plugin where hostid='$hostid'");
+$pluginsquery=$DB->query("Select * from {$dbprefix}plugin");
 $plugindb=array();
 while($arr=$DB->fetch_array($pluginsquery))
 {
@@ -10,7 +10,7 @@ while($arr=$DB->fetch_array($pluginsquery))
 	{
 		$plugindb[$arr['file']]=$arr;
 	}
-	else $DB->query('update '.DB_PREFIX."plugin set `active`=0 where hostid=$hostid and file='".$arr['file']."'");
+	else $DB->query("update {$dbprefix}plugin set `active`=0 where  file='".$arr['file']."'");
 }
 
 //遍历目录
@@ -19,9 +19,9 @@ $needrecache=false;
 foreach($pluginfile as $filename=>$fileinfo)
 {
 	if(!isset($plugindb[$filename])){
-		$pluginarr=$DB->fetch_first('Select * from `'.DB_PREFIX."plugin` where `file`='$filename' and hostid=$hostid");
+		$pluginarr=$DB->fetch_first("Select * from `{$dbprefix}plugin` where `file`='$filename'");
 		if(empty($pluginarr)){
-		$DB->query("Insert into `".DB_PREFIX."plugin` (`hostid`,`file`,`name`,`author`,`version`,`description`,`url`,`active`) values ('$hostid','$filename','$fileinfo[name]','$fileinfo[author]','$fileinfo[version]','$fileinfo[description]','$fileinfo[url]','0')");
+		$DB->query("Insert into `{$dbprefix}plugin` (`file`,`name`,`author`,`version`,`description`,`url`,`active`) values ('$filename','$fileinfo[name]','$fileinfo[author]','$fileinfo[version]','$fileinfo[description]','$fileinfo[url]','0')");
 		$fileinfo['active']=0;
 		$fileinfo['pid']=$DB->insert_id();
 		}else{
@@ -32,7 +32,7 @@ foreach($pluginfile as $filename=>$fileinfo)
 	}
 }
 
-if($needrecache) plugins_recache();
+if($needrecache) setting_recache();
 $curentPlugin=isset($_GET['plugin'])?$_GET['plugin']:(isset($_POST['plugin'])?$_POST['plugin']:'');//当前设置的插件
 if(!isset($plugindb[$curentPlugin])) $curentPlugin='';
 
@@ -40,7 +40,7 @@ if(RQ_POST)
 {
 	if($action=='upload')
 	{//上传安装的
-		$url='admin.php?file=plugin&action=install';
+		$url=$admin_url.'?file=plugin&action=install';
 		$zipfile = isset($_FILES['pluzip']) ? $_FILES['pluzip'] : '';
 		if (empty($zipfile)||$zipfile['error'] == 4){
 			redirect('请选择一个zip插件安装包',$url);
@@ -54,7 +54,7 @@ if(RQ_POST)
 
 		$ret = rqUnZip($zipfile['tmp_name'], RQ_DATA.'/plugins/', 'plugin');
 		if($ret==true){
-		redirect('插件安装成功','admin.php?file=plugin');
+		redirect('插件安装成功',$admin_url.'?file=plugin');
 		}
 		else redirect($ret,$url);
 	}
@@ -76,23 +76,22 @@ else
 	$active=$_GET['active'];
 	$active=$active?'0':'1';
 	$pid=$_GET['pid'];
-	$DB->query('update '.DB_PREFIX."plugin set active=$active where hostid=$hostid and pid=$pid");
-	plugins_recache();
-	redirect("插件状态更新成功",'admin.php?file=plugin');
+	$DB->query("update {$dbprefix}plugin set active=$active where pid=$pid");
+	setting_recache();
+	redirect("插件状态更新成功",$admin_url.'?file=plugin');
 	}
 	else if($action=='delete')
 	{
-		if($groupid!=4) redirect("您无权删除插件",'admin.php?file=plugin');
 		$pid=$_GET['pid'];
-		$arr=$DB->fetch_first('select * from '.DB_PREFIX."plugin where hostid=$hostid and pid=$pid");
+		$arr=$DB->fetch_first("select * from {$dbprefix}plugin where pid=$pid");
 		if(!empty($arr))
 		{
-			$DB->query('delete from '.DB_PREFIX."plugin where hostid=$hostid and pid=$pid");
+			$DB->query("delete from {$dbprefix}plugin where pid=$pid");
 			if(rmdir(RQ_DATA.'/plugins/'.$arr['file'])){
-			plugins_recache();
-			redirect("插件删除成功",'admin.php?file=plugin');
+			setting_recache();
+			redirect("插件删除成功",$admin_url.'?file=plugin');
 			}
-			redirect("删除删除失败",'admin.php?file=plugin');
+			redirect("插件删除失败",$admin_url.'?file=plugin');
 		}
 	}
 	else if($action=='setting')
@@ -103,7 +102,7 @@ else
 		}
 		else
 		{
-			redirect("不存在的插件",'admin.php?file=plugin');
+			redirect("不存在的插件",$admin_url.'?file=plugin');
 		}
 	}
 }

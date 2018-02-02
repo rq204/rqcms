@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: 简易蜜罐系统
-Version: 1.0
+Version: 3.0.1801
 Description: 该插件可以使黑客无法判断网站程序。
 Author: RQ204
 Author URL: http://www.rqcms.com
@@ -15,7 +15,7 @@ function honeypot_404_before_output()
 	$head=$_SERVER['REQUEST_METHOD']=='HEAD';
 	foreach($ziparr as $ext)
 	{
-		if(endsWith(REQUEST_URI,'.'.$ext))
+		if(endsWith($_SERVER['REQUEST_URI'],'.'.$ext))
 		{
 			if($head)
 			{
@@ -34,7 +34,7 @@ function honeypot_404_before_output()
 	$filearr=array('upload','ewebeditor','editor','login','upfile','config','datebase','version.php','blog-space-uid-');
 	foreach($filearr as $file)
 	{
-		if(strpos(REQUEST_URI,$file)!==false)
+		if(strpos($_SERVER['REQUEST_URI'],$file)!==false)
 		{
 			if($head)
 			{
@@ -49,7 +49,7 @@ function honeypot_404_before_output()
 input {font:11px Verdana;BACKGROUND: #FFFFFF;height: 18px;border: 1px solid #666666;}
 </style>
 <form method="POST" action="">
-<span style="font:11px Verdana;">Password: </span><input name="password" type="password" size="20" value='www.rqcms.com'>
+<span style="font:11px Verdana;">Password: </span><input name="password" type="password" size="20" value=''>
 <input type="hidden" name="action" value="login">
 <input type="submit" value="Login">
 </form>

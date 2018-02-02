@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: 访问统计
-Version: 1.0
+Version: 1.1.1801
 Description: 这是世界上第一个RQCMS插件，通过它我们可以很方便的添加统计代码。
-Author: RQ204
+Author: RQ204 
 Author URL: http://www.rqcms.com
 */
 
@@ -18,7 +18,6 @@ doAction('captcha_create_myself'); 创建自己的验证码图形，处理后注
 doAction('comment_post_check'); 对回复保存时的检查用
 doAction('comment_data_view',$commentdb);对回复显示的数据进行处理
 doAction('index_before_view');首页显示内容前的处理工作
-doAction('rss_before_output',$rssdb);输出rss结果前的处理工作
 doAction('category_before_view');列表页显示前的处理
 doAction('profile_reg_check');注册用户前的检查
 doAction('search_before_featch');搜索页搜索前检查
@@ -31,8 +30,6 @@ doAction('admin_plugin_setting_save');插件配置保存设置
 doAction('admin_plugin_setting_view');插件设置界面
 */
 
-!defined('RQ_DATA') && exit('access deined!');
-
 //添加一个菜单在插件菜单中
 function stat_add_item()
 {
@@ -43,12 +40,12 @@ addAction('admin_plugin_add_item','stat_add_item');
 
 function stat_footer_add()
 {
-	global $pluginArr,$mapArr,$output;
+	global $output,$setting,$views;
 	$html=$output;
 	$pos=strrpos($html,'</body>');
-	if($pos&&$mapArr['file'][RQ_FILE]!='admin.php')
+	if($pos&&$views!='admin')
 	{
-		$html=substr($html,0,$pos).$pluginArr['stat'].substr($html,$pos);
+		$html=substr($html,0,$pos).$setting['plugin']['stat'].substr($html,$pos);
 	}
 	$output=$html;
 }

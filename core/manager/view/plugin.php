@@ -1,5 +1,4 @@
 <?php
-if(!defined('RQ_ROOT')) exit('Access Denied');
 print <<<EOT
 <div class="mainbody">
   <table border="0"  cellspacing="0" cellpadding="0" style="width:100%;">
@@ -7,8 +6,7 @@ print <<<EOT
       <td valign="top" style="width:150px;"><div class="tableborder">
         <div class="tableheader">插件管理</div>
         <div class="leftmenubody">
-          <div class="leftmenuitem">&#8226; <a href="admin.php?file=plugin&action=list">插件列表</a></div>
-          <div class="leftmenuitem">&#8226; <a href="admin.php?file=plugin&action=install">安装插件</a></div>
+          <div class="leftmenuitem">&#8226; <a href="{$admin_url}?file=plugin&action=list">插件列表</a></div>
         </div>
       </div><div class="tableborder">
         <div class="tableheader">插件菜单</div>
@@ -17,7 +15,7 @@ if(count($pluginitem)>0){ print <<<EOT
         <div class="leftmenubody">
 EOT;
 foreach($pluginitem as $itemk=>$itemv){print <<<EOT
-          <div class="leftmenuitem">&#8226; <a href="admin.php?file=plugin&action=setting&plugin=$itemv">$itemk</a></div>
+          <div class="leftmenuitem">&#8226; <a href="{$admin_url}?file=plugin&action=setting&plugin=$itemv">$itemk</a></div>
 EOT;
 }print <<<EOT
         </div>
@@ -42,7 +40,7 @@ EOT;
 foreach($plugindb as $key => $plugin){print <<<EOT
     <tr class="tablecell">
       <td>$plugin[name]</td>
-	  <td nowrap><a href="admin.php?file=plugin&action=active&active=$plugin[active]&pid=$plugin[pid]">
+	  <td nowrap><a href="{$admin_url}?file=plugin&action=active&active=$plugin[active]&pid=$plugin[pid]">
 EOT;
 $stats=$plugin['active']?'正常':'禁用';
 print <<<EOT
@@ -50,14 +48,14 @@ print <<<EOT
       <td nowrap>$plugin[version]</td>
 	  <td nowrap><a href='$plugin[url]' target='_blank'>$plugin[author]</td>
       <td nowrap>$plugin[description]</td>
-      <td nowrap><a href="admin.php?file=plugin&action=delete&pid=$plugin[pid]">删除</a></td>
+      <td nowrap><a href="{$admin_url}?file=plugin&action=delete&pid=$plugin[pid]">删除</a></td>
     </tr>
 EOT;
 }
 }else if($action=='install')
 { 
 print <<<EOT
-  <form action="admin.php?file=plugin" method="post" enctype="multipart/form-data">
+  <form action="{$admin_url}?file=plugin" method="post" enctype="multipart/form-data">
   <input type="hidden" name="action" value="upload" />
   <tr class="tdbheader">
 	<td colspan="2">上传新插件</td>

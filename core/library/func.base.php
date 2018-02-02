@@ -16,6 +16,7 @@ function doStripslashes(){
 		$_POST = addslashesDeep($_POST);
 		$_COOKIE = addslashesDeep($_COOKIE);
 		$_REQUEST = addslashesDeep($_REQUEST);
+		$_SERVER = addslashesDeep($_SERVER);
 	}
 }
 
@@ -167,15 +168,7 @@ function doAction($hook){
  * @return unknown
  */
 function fopen_url($url){
-	if (function_exists('file_get_contents')) {
-		$file_content = @file_get_contents($url);
-	} elseif (ini_get('allow_url_fopen') && ($file = @fopen($url, 'rb'))){
-		$i = 0;
-		while (!feof($file) && $i++ < 1000) {
-			$file_content .= strtolower(fread($file, 4096));
-		}
-		fclose($file);
-	} elseif (function_exists('curl_init')) {
+	if (function_exists('curl_init')) {
 		$curl_handle = curl_init();
 		curl_setopt($curl_handle, CURLOPT_URL, $url);
 		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT,2);
@@ -184,37 +177,18 @@ function fopen_url($url){
 		curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Trackback Spam Check');
 		$file_content = curl_exec($curl_handle);
 		curl_close($curl_handle);
+	} elseif (function_exists('file_get_contents')) {
+		$file_content = @file_get_contents($url);
+	} elseif (ini_get('allow_url_fopen') && ($file = @fopen($url, 'rb'))){
+		$i = 0;
+		while (!feof($file) && $i++ < 1000) {
+			$file_content .= strtolower(fread($file, 4096));
+		}
+		fclose($file);
 	} else {
 		$file_content = '';
 	}
 	return $file_content;
-}
-/**
- * 时间转化函数
- *
- * @param $now
- * @param $datetemp
- * @param $dstr
- * @return string
- */
-function smartDate($datetemp, $dstr='Y-m-d H:i'){
-	global $utctimestamp, $timezone;
-	$op = '';
-	$sec = $utctimestamp - $datetemp;
-	$hover = floor($sec / 3600);
-	if ($hover == 0){
-		$min = floor($sec / 60);
-		if ( $min == 0) {
-			$op = $sec.' 秒前';
-		} else {
-			$op = "$min 分钟前";
-		}
-	} elseif ($hover < 24){
-		$op = "约 {$hover} 小时前";
-	} else {
-		$op = gmdate($dstr, $datetemp + $timezone * 3600);
-	}
-	return $op;
 }
 
 /**
@@ -248,90 +222,6 @@ function findArray($array1,$array2){
     $r2 = array_diff($array2, $array1);
     $r = array_merge($r1, $r2);
     return $r;
-}
-
-
-/**
- * 图片生成缩略图
- *
- * @param string $img 预缩略的图片
- * @param unknown_type $imgType 上传文件的类型 eg:image/jpeg
- * @param string $thumPatch 生成缩略图路径
- * @param int $max_w 缩略图最大宽度 px
- * @param int $max_h 缩略图最大高度 px
- * @return unknown
- */
-function resizeImage($img, $imgType, $thumPatch, $max_w, $max_h){
-	$size = chImageSize($img,$max_w,$max_h);
-    $newwidth = $size['w'];
-	$newheight = $size['h'];
-	$w =$size['rc_w'];
-	$h = $size['rc_h'];
-	if ($w <= $max_w && $h <= $max_h){
-		return false;
-	}
-	if ($imgType == 'image/pjpeg' || $imgType == 'image/jpeg'){
-		if(function_exists('imagecreatefromjpeg')){
-			$img = imagecreatefromjpeg($img);
-		}else{
-			return false;
-		}
-	} elseif ($imgType == 'image/x-png' || $imgType == 'image/png') {
-		if (function_exists('imagecreatefrompng')){
-			$img = imagecreatefrompng($img);
-		}else{
-			return false;
-		}
-	}
-	if (function_exists('imagecopyresampled')){
-		$newim = imagecreatetruecolor($newwidth, $newheight);
-		imagecopyresampled($newim, $img, 0, 0, 0, 0, $newwidth, $newheight, $w, $h);
-	} else {
-		$newim = imagecreate($newwidth, $newheight);
-		imagecopyresized($newim, $img, 0, 0, 0, 0, $newwidth, $newheight, $w, $h);
-	}
-	if ($imgType == 'image/pjpeg' || $imgType == 'image/jpeg'){
-		if(!imagejpeg($newim,$thumPatch)){
-			return false;
-		}
-	} elseif ($imgType == 'image/x-png' || $imgType == 'image/png') {
-		if (!imagepng($newim,$thumPatch)){
-			return false;
-		}
-	}
-	ImageDestroy ($newim);
-	return true;
-}
-
-/**
- * 按照比例改变图片大小(非生成缩略图)
- *
- * @param string $img 图片路径
- * @param int $max_w 最大缩放宽
- * @param int $max_h 最大缩放高
- * @return unknown
- */
-function chImageSize ($img,$max_w,$max_h){
-	$size = @getimagesize($img);
-	$w = $size[0];
-	$h = $size[1];
-	//计算缩放比例
-	@$w_ratio = $max_w / $w;
-	@$h_ratio =	$max_h / $h;
-	//决定处理后的图片宽和高
-	if( ($w <= $max_w) && ($h <= $max_h) ){
-		$tn['w'] = $w;
-		$tn['h'] = $h;
-	} else if(($w_ratio * $h) < $max_h){
-		$tn['h'] = ceil($w_ratio * $h);
-		$tn['w'] = $max_w;
-	} else {
-		$tn['w'] = ceil($h_ratio * $w);
-		$tn['h'] = $max_h;
-	}
-	$tn['rc_w'] = $w;
-	$tn['rc_h'] = $h;
-	return $tn ;
 }
 
 /**
@@ -414,40 +304,78 @@ function implode_ids($array){
 	return $ids;
 }
 
+
+//从key 和value结构中生成sql语句
+function getJoinSql($article)
+{
+	$sql='';
+	foreach($article as $k=>$v)
+	{
+		$sql.="`$k`='$v',";
+	}
+	$sql=substr($sql,0,strlen($sql)-1);
+	return $sql;
+}
+
+
 /**
- * 获取文件后缀
- * @param string $fileName
+ * 检测来源是手机用户
+ *
+ * @return boolean true 是手机端  false 是其他终端
  */
-function getFileSuffix($fileName) { 
-	return strtolower(substr(strrchr($fileName, "."),1));
+function from_mobile() {
+	$regex_match = "/(nokia|iphone|android|motorola|^mot\-|softbank|foma|docomo|kddi|up\.browser|up\.link|";
+	$regex_match .= "htc|dopod|blazer|netfront|helio|hosin|huawei|novarra|CoolPad|webos|techfaith|palmsource|meizu|miui|ucweb";
+	$regex_match .= "blackberry|alcatel|amoi|ktouch|nexian|samsung|^sam\-|s[cg]h|^lge|ericsson|philips|sagem|wellcom|bunjalloo|maui|";
+	$regex_match .= "symbian|smartphone|midp|wap|phone|windows ce|iemobile|^spice|^bird|^zte\-|longcos|pantech|gionee|^sie\-|portalmmm|";
+	$regex_match .= "jig\s browser|hiptop|^ucweb|^benq|haier|^lct|opera\s*mobi|opera\*mini|320x320|240x320|176x220";
+	$regex_match .= ")/i";
+
+	if (isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE']) || (isset($_SERVER['HTTP_USER_AGENT']) && preg_match($regex_match, strtolower($_SERVER['HTTP_USER_AGENT'])))) {
+		return true;
+	}
+	return false;
 }
 
-function getGetArr($string)
-{
-	$getArr=array();
-	if(strpos($string,'?')>1)
-	{
-		$string=explode('?',$string);
-		foreach(explode('&',$string[1]) as $tget)
-		{
-			$gets=explode('=',$tget);
-			$getArr[$gets[0]]=isset($gets[1])?$gets[1]:'';
-		}
-	}
-	return $getArr;
+//检查是不是从微信来的
+function from_weixin(){ 
+	if (strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger') !== false ) {
+			return true;
+	}	
+	return false;
 }
 
-//获取最下级的分类id
-function getChildCate($cateid,$cateArr)
-{
-	$has=array();
-	$has[]=$cateid;
-	foreach($cateArr as $key => $cate)
-	{
-		if($cate['pid']==$cateid)
-		{
-			$has[]=getChildCate($cate['cid'],$cateArr);
+//安装程序用的
+function runquery($sql,$prefix) {
+	global $DB, $tablenum;
+	$sql = str_replace("\r", "\n", str_replace('`prefix_', '`'.$prefix, $sql));
+	$ret = explode(";\n", trim($sql));
+	unset($sql);
+	foreach($ret as $query) {
+		$query = trim($query);
+		if($query) {
+			if(substr($query, 0, 26) == 'CREATE TABLE IF NOT EXISTS') {
+				$name = preg_replace("/CREATE TABLE IF NOT EXISTS `([a-z0-9_]+)` \(.*/is", "\\1", $query);
+				$DB->query($query);
+				echo '创建表 '.$name.' ... <font color="#0000EE">成功</font><br />';
+				$tablenum++;
+			} else {
+				$DB->query($query);
+			}
 		}
 	}
-	return implode(',',$has);
+}
+
+function getChildArr($cid,$category)
+{
+	$childidArr[]=$cid;
+	foreach($category as $id=>$cateinfo)
+	{
+		if($cateinfo['pid']==$cid)
+		{
+			$child=getChildArr($id,$category);
+			$childidArr=array_merge($childidArr,$child);
+		}
+	}
+	return $childidArr;
 }

@@ -1,66 +1,40 @@
 <?php
-if(!defined('RQ_ROOT')) exit('Access Denied');
-$stickcache=getStickArticle(10);
-$hotcache=getHotArticle(10);
-$searchlist=getLatestSearch(100);
 include RQ_DATA."/themes/{$theme}/header.php";
+?>
 
-?>
-  <div id=main>
-<?php
-if (isset($articledb)&&$searchd) {?>
-    <div id=left>
-      <div class=leftbox>
-        <h3>关键字&gt;&gt;<?php echo $searchd;?></h3>
-<?php
-require RQ_DATA."/themes/{$theme}/list.php";
-?>
-      </div>
-    </div>
-    <div id=right>
-      <div class=rightbox>
-        <h3>推荐文章</h3>
-        <ul>
-<?php
-foreach($stickcache AS $data){
-?>
-          <li><a href="<?php echo $data['aurl'];?>" title="<?php echo $data['title'];?>"><?php echo $data['title'];?></a></li>
-<?php
-}?>
-        </ul>
-      </div>
-      <div class=rightbox>
-        <h3>热门文章</h3>
-        <ul>
-<?php
-foreach($hotcache AS $data){
-?>
-        <li><a href="<?php echo $data['aurl'];?>" title="<?php echo $data['title'];?>,浏览<?php echo $data['views'];?>"><?php echo $data['title'];?></a></li>
-<?php
-}?>
-        </ul>
-      </div>
-<?php
-}else{?>
-    <div id=fullbox>
-      <div style=" margin:40px auto; width:880px; text-align:center;">
-      <p style=" margin:10px auto; width:600px; text-align:center; font-weight:bold;color:#1c5E96;"><?php echo $host['name'];?>搜索</p>
-      <form action="<?php echo $search_url;?>" method="post" >
-      <span style="font-family:宋体; font-size:16px; font-weight:600; color:#1c5E96;">关键字:</span>
-      <input type="text" name="keywords" id="keywords" type="text" value="" onmouseover="this.focus()"  autocomplete="off" style=" width:220px; height:22px; line-height:22px;"/> <input style="margin-left:8px; height:30px;" type="submit" id="go" value="搜 &nbsp; 索" /></form>
-    </div>
-<?php
+最近搜索列表：$searchlist=getLatestSearch(20);<br>
+<?php 
+$searchlist=getLatestSearch(20);
 if(!empty($searchlist))
 {
-	foreach($searchlist as $kv)
-	{
-		$surl=mkUrl('search.php',$kv);
-		echo "<p align=center><a href=\"$surl\">$kv</a></p>";
+	foreach($searchlist as $data){ ?>
+		  <li><a href="<?php echo $data['aurl']; ?>" title="<?php echo $data['title']; ?>"><?php echo $data['title'];;?></a></li>
+	<?php
 	}
 }
-
-}?>
-  </div>
+?>
+<hr>搜索的文件列表 $articledb;<br>
+<hr>搜索的关键字  $searchd; <br>
+<?php echo $searchd;?><br>
 <?php
+if($searchd)
+{
+	if(!empty($articledb)) 
+	{
+		require RQ_DATA."/themes/{$theme}/list.php";
+	}
+	else
+	{
+?>
+没有搜索符合条件的内容
+<?php
+	}
+}
+else
+{
+?>
+这里是默认的搜索页面
+<?php
+}
 include RQ_DATA."/themes/{$theme}/footer.php";
 ?>

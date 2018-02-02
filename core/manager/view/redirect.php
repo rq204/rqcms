@@ -1,12 +1,11 @@
 <?php
-if(!defined('RQ_ROOT')) exit('Access Denied');
 print <<<EOT
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>系统消息</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
-<link rel="stylesheet" href="{$cssfile}" type="text/css">
+<link rel="stylesheet" href="{$css_url}" type="text/css">
 <meta HTTP-EQUIV="REFRESH" content="$min;url=$url">
 <style type="text/css">
 .alert {

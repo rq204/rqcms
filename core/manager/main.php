@@ -1,5 +1,4 @@
 <?php
-if(!defined('RQ_ROOT')) exit('Access Denied');
 function get_real_size($size) 
 {
 	$kb = 1024; // Kilobyte
@@ -53,10 +52,7 @@ if (@ini_get ( 'file_uploads' )) {
 } else {
 	$fileupload = '<font color="red">禁止</font>';
 }
-$globals = getphpcfg ('register_globals' );
-$safemode = getphpcfg ('safe_mode');
-$gd_version = gd_version ();
-$gd_version = $gd_version ? '版本:' . $gd_version : '不支持';
+
 // //查询数据信息
 $server ['datetime'] = date ( 'Y-m-d H:i:s', time () );
 $server ['software'] = $_SERVER ['SERVER_SOFTWARE'];
@@ -64,11 +60,10 @@ $server['mysql']=$DB->version();
 if (function_exists ( 'memory_get_usage' )) {
 	$server ['memory_info'] = get_real_size ( memory_get_usage () );
 }
-$aarr=$DB->fetch_first("SELECT count(*) FROM ".DB_PREFIX."article WHERE hostid=$hostid");
-$atarr=$DB->fetch_first("SELECT count(*) FROM ".DB_PREFIX."attachment WHERE hostid=$hostid");
-$carr=$DB->fetch_first("SELECT count(*) FROM ".DB_PREFIX."comment WHERE hostid=$hostid");
 
-$server['article']=$aarr['count(*)'];
-$server['attach']=$atarr['count(*)'];
-$server['comment']= $carr['count(*)'];
+$aarr=$DB->fetch_first("SELECT count(aid) as c FROM {$dbprefix}article");
+$carr=$DB->fetch_first("SELECT count(cid) as c FROM {$dbprefix}comment");
+
+$server['article']=$aarr['c'];
+$server['comment']= $carr['c'];
 ?>

@@ -1,8 +1,7 @@
 ﻿<?php
-if(!defined('RQ_ROOT')) exit('Access Denied');
 $hotcache=getHotArticle(10);
-
 include RQ_DATA."/themes/$theme/header.php";
+
 ?>
 <div id=main>
 <div id=left>
@@ -11,12 +10,12 @@ include RQ_DATA."/themes/$theme/header.php";
 <div id=contents>
 <?php
 if($articledb){
+$multipage=pagination($total,$host['list_shownum'],$page,'tag',$item);
 require RQ_DATA."/themes/{$theme}/list.php";
 }else if($tagdb){
-foreach($tagdb as $key => $tag){
-$tagurl=mkUrl('tag.php',$tag['url']);
+foreach($tagdb as $tag){
 ?>
-<span style="line-height:160%;font-size:$tag[fontsize]px;margin-right:10px;"><a href="<?php echo $tagurl;?>" title="使用次数: <?php echo $tag['usenum'];?>"><?php echo $tag['item'];?></a></span>
+<span><a href="<?php echo $tagurl;?>"><?php echo $tag;?></a></span>
 <?php
 }}
 echo $multipage

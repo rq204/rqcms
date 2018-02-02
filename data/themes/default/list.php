@@ -1,11 +1,10 @@
 <?php
-if(!defined('RQ_ROOT')) exit('Access Denied');
-if ($total) {?>
+if (count($articledb)>0) {?>
         <ul id=list>
 <?php
 foreach($articledb as $key => $article){
 ?>
-          <li><span class=postdate><?php echo $article['dateline'];?></span> <a href="<?php echo $article['aurl'];;?>" title="<?php echo $article['excerpt'];?>"><?php echo $article['title'];?></a> </li>
+          <li><span class=postdate><?php echo $article['dateline'];?></span> <a href="<?php echo $article['url'];;?>" title="<?php echo $article['excerpt'];?>"><?php echo $article['title'];?></a> </li>
 <?php
 }?>
         </ul>

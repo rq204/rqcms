@@ -1,5 +1,4 @@
 <?php
-if(!defined('RQ_ROOT')) exit('Access Denied');
 print <<<EOT
 <div class="mainbody">
   <table border="0"  cellspacing="0" cellpadding="0" style="width:100%;">
@@ -7,10 +6,10 @@ print <<<EOT
       <td valign="top" style="width:150px;"><div class="tableborder">
         <div class="tableheader">数据管理</div>
         <div class="leftmenubody">
-          <div class="leftmenuitem">&#8226; <a href="admin.php?file=database&action=backup">备份数据库</a></div>
-          <div class="leftmenuitem">&#8226; <a href="admin.php?file=database&action=tools">数据库维护</a></div>
-          <div class="leftmenuitem">&#8226; <a href="admin.php?file=database&action=filelist">数据库恢复</a></div>
-          <div class="leftmenuitem">&#8226; <a href="admin.php?file=database&action=mysqlinfo">数据库信息</a></div>
+          <div class="leftmenuitem">&#8226; <a href="{$admin_url}?file=database&action=backup">备份数据库</a></div>
+          <div class="leftmenuitem">&#8226; <a href="{$admin_url}?file=database&action=tools">数据库维护</a></div>
+          <div class="leftmenuitem">&#8226; <a href="{$admin_url}?file=database&action=filelist">数据库恢复</a></div>
+          <div class="leftmenuitem">&#8226; <a href="{$admin_url}?file=database&action=mysqlinfo">数据库信息</a></div>
         </div>
       </div></td>
       <td valign="top" style="width:20px;"></td>
@@ -25,7 +24,7 @@ if ($action == 'filelist') {print <<<EOT
 </div>
 EOT;
 }print <<<EOT
-	  <form action="admin.php?file=database" enctype="multipart/form-data" method="POST" name="form"><table width="100%" align="center" border="0" cellspacing="0" cellpadding="0">
+	  <form action="{$admin_url}?file=database" enctype="multipart/form-data" method="POST" name="form"><table width="100%" align="center" border="0" cellspacing="0" cellpadding="0">
 	  <tr><td class="rightmainbody"><table width="100%" align="center" border="0" cellspacing="0" cellpadding="0">
 EOT;
 if (in_array($action, array('backup', 'tools'))) {print <<<EOT
@@ -88,11 +87,11 @@ EOT;
 } else {
 foreach($dbfiles as $key => $dbfile){print <<<EOT
     <tr class="tablecell">
-      <td><a href="admin.php?file=database&action=downsql&sqlfile=$dbfile[filename]" title="右键另存为保存该文件">$dbfile[filename]</a></td>
+      <td><a href="{$admin_url}?file=database&action=downsql&sqlfile=$dbfile[filename]" title="右键另存为保存该文件">$dbfile[filename]</a></td>
       <td nowrap>$dbfile[bktime]</td>
       <td nowrap>$dbfile[mtime]</td>
       <td nowrap>$dbfile[filesize]</td>
-      <td nowrap><a href="admin.php?file=database&action=checkresume&sqlfile=$dbfile[filepath]">导入</a></td>
+      <td nowrap><a href="{$admin_url}?file=database&action=checkresume&sqlfile=$dbfile[filepath]">导入</a></td>
       <td nowrap><input type="checkbox" name="sqlfiles[$dbfile[filename]]" value="1"></td>
     </tr>
 EOT;

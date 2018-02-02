@@ -1,5 +1,5 @@
 <?php
-echo <<<EOT
+$cssdata=<<<EOT
 body {
 	margin: 0;
 	padding: 0;

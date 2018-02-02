@@ -2,125 +2,86 @@
 class DB_MySQL  {
 
 	var $querycount = 0;
-
+    var $mysqli = null;
+	//错误描述
 	function geterrdesc() {
-		return mysql_error();
+		return $this->mysqli->error;
 	}
 
+	//错误编号
 	function geterrno() {
-		return intval(mysql_errno());
+		return $this->mysqli->errno;
 	}
 
+	//插入生成的自增id
 	function insert_id() {
-		$id = mysql_insert_id();
-		return $id;
+		 return mysqli_insert_id($this->mysqli);
 	}
 
-	function connect($servername, $dbusername, $dbpassword, $dbname, $usepconnect=0) {
-		if($usepconnect) {
-			if(!@mysql_pconnect($servername, $dbusername, $dbpassword)) {
-				$this->halt('数据库链接失败');
-			}
-		} else {
-			if(!@mysql_connect($servername, $dbusername, $dbpassword)) {
-				$this->halt('数据库链接失败');
-			}
-		}
-
-		if($this->version() > '4.1') {
-			$charset=$dbcharset='utf8';
-			if(!$dbcharset && in_array(strtolower($charset), array('gbk', 'big5', 'utf-8'))) {
-				$dbcharset = str_replace('-', '', $charset);
-			}
-			if($dbcharset) {
-				//mysql_query("SET NAMES '$dbcharset'");
-				mysql_query("SET character_set_connection=$dbcharset, character_set_results=$dbcharset, character_set_client=binary;");
-			}
-		}
-
-		if($this->version() > '5.0.1') {
-			mysql_query("SET sql_mode=''");
-		}
-		if($dbname) {
-			$this->select_db($dbname);
-		}
+	//连接数据库
+	function connect($servername, $dbusername, $dbpassword, $dbname) {
+		$this->mysqli = new mysqli($servername, $dbusername, $dbpassword, $dbname); 
+		 if ($this->mysqli->connect_error) {
+            halt($this->mysqli->connect_error);
+        }
+		$this->mysqli->set_charset("utf8");
 	}
 
-	function fetch_array($query, $result_type = MYSQL_ASSOC) {
-		return mysql_fetch_array($query, $result_type);
+	//从结果集中取得一行作为数字数组或关联数组
+	function fetch_array($query, $result_type = MYSQLI_ASSOC) {
+		return mysqli_fetch_array($query, $result_type);
 	}
 
-	function query($sql, $type = '') {
-		//echo "<div style=\"text-align: left;\">".htmlspecialchars($sql)."</div>";
-		/*
-		遇到问题时用这个来检查SQL执行语句
-		$fp = fopen('sqlquerylog.txt', 'a');
-		flock($fp, 2);
-		fwrite($fp, $sql."\n");
-		fclose($fp);
-		*/
-		$func = $type == 'UNBUFFERED' && @function_exists('mysql_unbuffered_query') ?
-			'mysql_unbuffered_query' : 'mysql_query';
-		if(!($query = $func($sql)) && $type != 'SILENT') {
-			$this->halt('MySQL Query Error', $sql);
-		}
+	//查询并得到一个结果集
+	function query($sql) {
+		$query = $this->mysqli->query($sql);
+        if (!$query) {
+            $this->halt("查询失败:\n$sql");
+        }
 		$this->querycount++;
 		return $query;
 	}
-	
-	function unbuffered_query($sql) {
-		$query = $this->query($sql, 'UNBUFFERED');
-		return $query;
-	}
 
-	function select_db($dbname) {
-		return mysql_select_db($dbname);
-	}
-
+	//从结果集中取得一行，并作为枚举数组返回
 	function fetch_row($query) {
-		$query = mysql_fetch_row($query);
-		return $query;
+		$arr = mysqli_fetch_row($query);
+		return $arr;
 	}
 
+	//使用sql查询获取第一行
 	function fetch_first($sql) {
 		$result = $this->query($sql);
 		$record = $this->fetch_array($result);
 		return $record;
 	}
 
+	//回结果集中行的数目
 	function num_rows($query) {
-		$query = mysql_num_rows($query);
-		return $query;
-	}
-
-	function num_fields($query) {
-		return mysql_num_fields($query);
+		return $this->mysqli->num_rows;
 	}
 	
-	function result($query, $row) {
-		$query = @mysql_result($query, $row);
-		return $query;
-	}
-	
+	//释放查询资源
 	function free_result($query) {
-		$query = mysql_free_result($query);
-		return $query;
+		return $query->close();
 	}
 
+	//mysql版本号
 	function version() {
-		return mysql_get_server_info();
+		return $this->mysqli->server_info;
 	}
 
+	//关闭连接
 	function close() {
-		return mysql_close();
+		return mysqli_close($this->mysqli);
 	}
 
+	//出错显示
 	function halt($msg, $sql=''){
 		global $username,$timestamp,$onlineip;
 
 		if ($sql) {
-			@$fp = fopen(RQ_DATA.'/logs/dberror.php', 'a');
-			@fwrite($fp, "$username\t$timestamp\t$onlineip\t".basename(RQ_FILE)."\t".htmlspecialchars($this->geterrdesc())."\t".str_replace(array("\r", "\n", "\t"), array(' ', ' ', ' '), trim(htmlspecialchars(str_replace("\t",'',$sql))))."\n");
+			@$fp = fopen(RQ_DATA.'/dberror.php', 'a');
+			@fwrite($fp, "$username\t$timestamp\t$onlineip\t".basename($_SERVER["SCRIPT_FILENAME"])."\t".htmlspecialchars($this->geterrdesc())."\t".str_replace(array("\r", "\n", "\t"), array(' ', ' ', ' '), trim(htmlspecialchars(str_replace("\t",'',$sql))))."\n");
 			@fclose($fp);
 		}
 
@@ -137,7 +98,7 @@ class DB_MySQL  {
 		$message .= "<p>数据库出错:</p><pre><b>".htmlspecialchars($msg)."</b></pre>\n";
 		$message .= "<b>Mysql error description</b>: ".htmlspecialchars($this->geterrdesc())."\n<br />";
 		$message .= "<b>Mysql error number</b>: ".$this->geterrno()."\n<br />";
-		$message .= "<b>Mysql error sql</b>: ".htmlspecialchars($sql)."\n<br />";
+		if($sql) $message .= "<b>Mysql error sql</b>: ".htmlspecialchars($sql)."\n<br />";
 		$message .= "<b>Date</b>: ".date("Y-m-d @ H:i")."\n<br />";
 		$message .= "<b>Script</b>: http://".$_SERVER['HTTP_HOST'].getenv("REQUEST_URI")."\n<br />";
 
@@ -145,10 +106,6 @@ class DB_MySQL  {
 		echo $message;
 		exit;
 	}
-	
-	function getMysqlVersion()
-	{
-		return mysql_get_server_info();
-	}
+
 }
 ?>

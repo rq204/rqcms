@@ -1,8 +1,6 @@
 <?php
-if(!defined('RQ_ROOT')) exit('Access Denied');
 if(!in_array($do,array('login','search','dberror'))) redirect('未定义操作',$url.'&action=log');
 $url.='&action=log&do='.$do;
-$type=substr($do,0,1);
 
 if(RQ_POST)
 {
@@ -27,11 +25,11 @@ if(RQ_POST)
 	}
 	else
 	{
-		$num=$DB->fetch_first("SELECT count(*) FROM ".DB_PREFIX."log where `type`='$type'");
+		$num=$DB->fetch_first("SELECT count(*) FROM {$dbprefix}login");
 		if($num['count(*)']>$delnum)
 		{
 			$delnum2=$num['count(*)']-$delnum;
-			$DB->fetch_first("Delete FROM ".DB_PREFIX."log where `type`='$type' order by lid limit $delnum2");
+			$DB->fetch_first("Delete FROM {$dbprefix}login order by lid limit $delnum2");
 			redirect('日志删除成功'.$delnum.'条',$url);
 		}
 		else
@@ -43,8 +41,6 @@ if(RQ_POST)
 }
 else
 {
-	$browser='浏览器';
-	$result='结果';
 	if($page) 
 	{
 		$start_limit = ($page - 1) * 30;
@@ -81,24 +77,34 @@ else
 			$logs=array();
 		}
 
-		$multipage = multi($total, 30, $page, "admin.php?file=maintenance&action=log&do=$do");
-		$browser='Sql语句';
-		$result='文件';
+		$multipage = multi($total, 30, $page, "{$admin_url}?file=maintenance&action=log&do=$do");
 	}
-	else
+	else if($do=='search')
 	{
-		$searchs  = $DB->query("SELECT * FROM ".DB_PREFIX."log where `type`='$type'");
+		$searchs  = $DB->query("SELECT * FROM {$dbprefix}$do");
 		$total     = $DB->num_rows($searchs);
-		$multipage = multi($total, 30, $page, "admin.php?file=maintenance&action=log&do=$do");
+		$multipage = multi($total, 30, $page, "{$admin_url}?file=maintenance&action=log&do=$do");
 		$searchdb = array();
-		$query = $DB->query("SELECT * FROM ".DB_PREFIX."log where `type`='$type' ORDER BY lid DESC LIMIT $start_limit, 30");
+		$query = $DB->query("SELECT * FROM {$dbprefix}$do ORDER BY sid DESC LIMIT $start_limit, 30");
 		while ($search = $DB->fetch_array($query)) {
 			$search['dateline'] = date('Y-m-d H:i',$search['dateline']);
 			$searchdb[] = $search;
 		}//end while
 		unset($search);
 		$DB->free_result($query);
-		if($do=='search') $result='关键字';
-		else if($do=='spider') $result='搜索次数';
+	}
+	else if($do=='login')
+	{	
+		$searchs  = $DB->query("SELECT * FROM {$dbprefix}$do");
+		$total     = $DB->num_rows($searchs);
+		$multipage = multi($total, 30, $page, "{$admin_url}?file=maintenance&action=log&do=$do");
+		$searchdb = array();
+		$query = $DB->query("SELECT * FROM {$dbprefix}$do ORDER BY lid DESC LIMIT $start_limit, 30");
+		while ($search = $DB->fetch_array($query)) {
+			$search['dateline'] = date('Y-m-d H:i',$search['dateline']);
+			$searchdb[] = $search;
+		}//end while
+		unset($search);
+		$DB->free_result($query);
 	}
 }

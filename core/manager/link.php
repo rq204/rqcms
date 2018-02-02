@@ -1,6 +1,4 @@
 <?php
-if(!defined('RQ_ROOT')) exit('Access Denied');
-
 if(RQ_POST)
 {
 	if($action == 'addlink') 
@@ -20,30 +18,30 @@ if(RQ_POST)
 		$name    = char_cv($name);
 		$url     = char_cv($url);
 		$note    = char_cv($note);
-		$rs = $DB->fetch_first("SELECT count(*) AS links FROM ".DB_PREFIX."link WHERE name='$name' AND url='$url' and `hostid`='$hostid'");
+		$rs = $DB->fetch_first("SELECT count(*) AS links FROM {$dbprefix}link WHERE name='$name' AND url='$url'  ");
 		if($rs['links'])
 		{
-			redirect('该链接在数据库中已存在', 'admin.php?file=link');
+			redirect('该链接在数据库中已存在', $admin_url.'?file=link');
 		}
-		$DB->query("INSERT INTO ".DB_PREFIX."link (name, url, note, visible,hostid,bak) VALUES ('$name', '$url', '$note' ,'$visible','$hostid','$bak')");
-		links_recache();
-		redirect('添加链接成功', 'admin.php?file=link');
+		$DB->query("INSERT INTO {$dbprefix}link (name, url, note, visible,bak) VALUES ('$name', '$url', '$note' ,'$visible','$bak')");
+		setting_recache();
+		redirect('添加链接成功', $admin_url.'?file=link');
 	}
 	else if($action=='domorelink')
 	{
 		if(isset($_POST['delete'])&&$ids = implode_ids($_POST['delete']))
 		{
-			$DB->query("DELETE FROM	".DB_PREFIX."link WHERE lid IN ($ids) and `hostid`='$hostid'");
+			$DB->query("DELETE FROM	{$dbprefix}link WHERE lid IN ($ids)  ");
 		}
 		if(is_array($_POST['name'])) 
 		{
 			foreach($_POST['name'] as $linkid => $value) 
 			{
-				$DB->unbuffered_query("UPDATE ".DB_PREFIX."link SET displayorder='".intval($_POST['displayorder'][$linkid])."', name='".char_cv(trim($_POST['name'][$linkid]))."', url='".char_cv(trim($_POST['url'][$linkid]))."', note='".char_cv(trim($_POST['note'][$linkid]))."', visible='".intval($_POST['visible'][$linkid])."',bak='".$_POST['bak'][$linkid]."' WHERE lid='".intval($linkid)."' and `hostid`='$hostid'");
+				$DB->query("UPDATE {$dbprefix}link SET displayorder='".intval($_POST['displayorder'][$linkid])."', name='".char_cv(trim($_POST['name'][$linkid]))."', url='".char_cv(trim($_POST['url'][$linkid]))."', note='".char_cv(trim($_POST['note'][$linkid]))."', visible='".intval($_POST['visible'][$linkid])."',bak='".$_POST['bak'][$linkid]."' WHERE lid='".intval($linkid)."'  ");
 			}
 		}
-		links_recache();
-		redirect('链接已成功更新', 'admin.php?file=link');
+		setting_recache();
+		redirect('链接已成功更新', $admin_url.'?file=link');
 	}
 }
 
@@ -75,7 +73,7 @@ function checknote($note = '')
 if($action == 'add') $subnav = '添加链接';
 if ($action == 'list')
  {
-	$query = $DB->query("SELECT * FROM ".DB_PREFIX."link where hostid='$hostid' ORDER BY displayorder");
+	$query = $DB->query("SELECT * FROM {$dbprefix}link ORDER BY displayorder");
 	$linkdb = array();
 	while ($link = $DB->fetch_array($query))
 	{
