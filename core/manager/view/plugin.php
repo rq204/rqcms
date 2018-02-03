@@ -40,35 +40,19 @@ EOT;
 foreach($plugindb as $key => $plugin){print <<<EOT
     <tr class="tablecell">
       <td>$plugin[name]</td>
-	  <td nowrap><a href="{$admin_url}?file=plugin&action=active&active=$plugin[active]&pid=$plugin[pid]">
+	  <td nowrap>
 EOT;
 $stats=$plugin['active']?'正常':'禁用';
+$opt=$plugin['active']?'禁用':'启用';
 print <<<EOT
-	  $stats</a></td>
+	  $stats</td>
       <td nowrap>$plugin[version]</td>
 	  <td nowrap><a href='$plugin[url]' target='_blank'>$plugin[author]</td>
       <td nowrap>$plugin[description]</td>
-      <td nowrap><a href="{$admin_url}?file=plugin&action=delete&pid=$plugin[pid]">删除</a></td>
+      <td nowrap><a href="{$admin_url}?file=plugin&action=active&active=$plugin[active]&pid=$plugin[pid]">{$opt}</a></td>
     </tr>
 EOT;
 }
-}else if($action=='install')
-{ 
-print <<<EOT
-  <form action="{$admin_url}?file=plugin" method="post" enctype="multipart/form-data">
-  <input type="hidden" name="action" value="upload" />
-  <tr class="tdbheader">
-	<td colspan="2">上传新插件</td>
-  </tr>
-  <tr class="tablecell">
-    <td colspan="2">请上传一个zip压缩格式的插件安装包。 <a href="http://www.rqcms.com/plugin/" target="_blank">获得更多插件»</a></td>
-  </tr>
-  <tbody id="attachbody"><tr class="tablecell"><td>压缩包:</td><td><input class="formfield" type="file" name="pluzip"></td></tr></tbody>
-  <tr class="tablecell">
-    <td colspan="2" align="center"><input type="submit" class="formbutton" value="上传" /></td>
-  </tr>
-  </form>
-EOT;
 }elseif ($action == 'setting') {
 doAction('admin_plugin_setting_view');
 }print <<<EOT

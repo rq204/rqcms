@@ -68,7 +68,7 @@ function xml_change_views()
        }
        else
        {
-           //https://ipkk.com/read/322017.html	60%	Monthly	2018-02-03 08:58
+           //322017.html	60%	Monthly	2018-02-03 08:58
            $xmarr=explode('-',substr($request_arr[0],0,-4));
            if(count($xmarr)==3)
            {

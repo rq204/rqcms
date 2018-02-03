@@ -5,8 +5,7 @@ $plugindb=array();
 while($arr=$DB->fetch_array($pluginsquery))
 {
 	$pluginfile=RQ_DATA.'/plugins/'.$arr['file'].'/'.$arr['file'].'.php';
-	$settingfile=RQ_DATA.'/plugins/'.$arr['file'].'/'.$arr['file'].'_setting.php';
-	if(file_exists($pluginfile)&&file_exists($settingfile))
+	if(file_exists($pluginfile))
 	{
 		$plugindb[$arr['file']]=$arr;
 	}
@@ -38,27 +37,7 @@ if(!isset($plugindb[$curentPlugin])) $curentPlugin='';
 
 if(RQ_POST)
 {
-	if($action=='upload')
-	{//上传安装的
-		$url=$admin_url.'?file=plugin&action=install';
-		$zipfile = isset($_FILES['pluzip']) ? $_FILES['pluzip'] : '';
-		if (empty($zipfile)||$zipfile['error'] == 4){
-			redirect('请选择一个zip插件安装包',$url);
-		}
-		if (!$zipfile || $zipfile['error'] >= 1 || empty($zipfile['tmp_name'])){
-			redirect('插件上传失败',$url);
-		}
-		if (getFileSuffix($zipfile['name']) != 'zip') {
-			redirect('只支持zip压缩格式的插件包',$url);
-		}
-
-		$ret = rqUnZip($zipfile['tmp_name'], RQ_DATA.'/plugins/', 'plugin');
-		if($ret==true){
-		redirect('插件安装成功',$admin_url.'?file=plugin');
-		}
-		else redirect($ret,$url);
-	}
-	else if($action=='setting')
+	if($action=='setting')
 	{//插件的保存设置
 		if($curentPlugin)
 		{
@@ -72,33 +51,23 @@ else
 {
 	if(empty($action)) $action='list';
 
-	if($action=='active'){
-	$active=$_GET['active'];
-	$active=$active?'0':'1';
-	$pid=$_GET['pid'];
-	$DB->query("update {$dbprefix}plugin set active=$active where pid=$pid");
-	setting_recache();
-	redirect("插件状态更新成功",$admin_url.'?file=plugin');
-	}
-	else if($action=='delete')
+	if($action=='active')
 	{
+		$active=$_GET['active'];
+		$active=$active?'0':'1';
+		$stats=$active?'启用':'禁用';
 		$pid=$_GET['pid'];
-		$arr=$DB->fetch_first("select * from {$dbprefix}plugin where pid=$pid");
-		if(!empty($arr))
-		{
-			$DB->query("delete from {$dbprefix}plugin where pid=$pid");
-			if(rmdir(RQ_DATA.'/plugins/'.$arr['file'])){
-			setting_recache();
-			redirect("插件删除成功",$admin_url.'?file=plugin');
-			}
-			redirect("插件删除失败",$admin_url.'?file=plugin');
-		}
+		$DB->query("update {$dbprefix}plugin set active=$active where pid=$pid");
+		setting_recache();
+		redirect("插件状态更新为$stats",$admin_url.'?file=plugin');
 	}
 	else if($action=='setting')
 	{
 		if($curentPlugin)
 		{
-			include RQ_DATA."/plugins/{$curentPlugin}/{$curentPlugin}_setting.php";
+			$plugin_setting_file=RQ_DATA."/plugins/{$curentPlugin}/{$curentPlugin}_setting.php";
+			if(file_exists($plugin_setting_file)) include $plugin_setting_file;
+			else redirect("不存在的插件文件",$admin_url.'?file=plugin');
 		}
 		else
 		{
