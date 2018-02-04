@@ -22,7 +22,7 @@ class DB_MySQL  {
 	function connect($servername, $dbusername, $dbpassword, $dbname) {
 		$this->mysqli = new mysqli($servername, $dbusername, $dbpassword, $dbname); 
 		 if ($this->mysqli->connect_error) {
-            halt($this->mysqli->connect_error);
+            $this->halt($this->mysqli->connect_error);
         }
 		$this->mysqli->set_charset("utf8");
 	}

@@ -6,40 +6,9 @@ Description: 为每个页面增加简繁体中文的链接，默认是ch-hans。
 Version: 1.1.16
 Author: rq204
 Author URI: https://rqcms.com/
+Thanks URL: https://oogami.name/project/wpcc/
 */
 
-/*
-Copyright (C) 2009-2013 Ono Oogami, https://oogami.name/ (ono@oogami.name)
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
-
-/**
- * WP Chinese Conversion Plugin main file
- *
- * 為Wordpress增加中文繁簡轉換功能. 轉換過程在服務器端完成. 使用的繁簡字符映射表來源于Mediawiki.
- * 本插件比较耗费资源. 因为对页面内容繁简转换时载入了一个几百KB的转换表(ZhConversion.php), 编译后占用内存超过1.5MB
- * 如果可能, 建议安装xcache/ eAccelerator之类PHP缓存扩展. 可以有效提高速度并降低CPU使用,在生产环境下测试效果非常显著.
- *
- * @package WPCC
- * @version see WPCC_VERSION constant below
- * @TODO 用OO方式重寫全部代碼, 計劃1.2版本實現.
- * @link http://plugins.svn.wordpress.org/wp-chinese-conversion/ SVN Repository
- * @link http://wordpress.org/extend/plugins/wp-chinese-conversion/ Plugin Page on wordpress.org, including guides and docs.
- * @link https://oogami.name/project/wpcc/ Plugin Homepage
- *
- */
 require(RQ_DATA . '/plugins/chinese-conversion/ZhConversion.php');
 
 $wpcc_langs = array(
@@ -112,6 +81,7 @@ function chinese_conversion_before_output()
 
 		//html
 		$output=str_replace('<html>',"<html lang={$wpcc_variant}>",$output);
+		$output=str_replace('<html amp lang="zh">',"<html amp lang=\"{$wpcc_variant}\">",$output);
 	}
 }
 
