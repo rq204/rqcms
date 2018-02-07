@@ -31,7 +31,7 @@ function setting_recache()
 function category_recache()
 {
 	global $DB,$dbprefix;
-	$cquery= $DB->query("SELECT * FROM `{$dbprefix}category` order by displayorder asc");
+	$cquery= $DB->query("SELECT * FROM `{$dbprefix}category` where visible=1 order by displayorder asc");
 	$arrcates=array();
 	while($cate=$DB->fetch_array($cquery))
 	{
