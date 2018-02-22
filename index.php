@@ -139,6 +139,7 @@ $contentType='Content-Type: text/html; charset=UTF-8';
 $host_url=RQ_HTTP.RQ_HOST;
 $page_url=RQ_HTTP.RQ_HOST.$_SERVER['REQUEST_URI'];
 $refer_url=isset($_SERVER['HTTP_REFERER'])?$_SERVER['HTTP_REFERER']:'';
+$theme_url=RQ_HTTP.RQ_HOST.'/'.basename(RQ_DATA).'/themes/'.$theme;
 
 doAction('before_router');
 include_once $coreView;

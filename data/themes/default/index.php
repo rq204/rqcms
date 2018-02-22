@@ -2,7 +2,6 @@
 $title=$setting['option']['name'];
 include RQ_DATA."/themes/$theme/header.php";
 ?>
-
 显示所有栏目<br />
 <?php
 foreach($category as $cate)
