@@ -18,3 +18,8 @@ RewriteRule ^.*$ /index.php [L]
 RewriteRule ^[^/]*?/.*?\.(php|sql|file|txt).*?$ /index.php [L]
 
 </IfModule>
+
+#½ûÖ¹ÁÐ³öÄ¿Â¼
+<Files *>
+Options -Indexes
+</Files>

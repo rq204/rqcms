@@ -141,6 +141,8 @@ $page_url=RQ_HTTP.RQ_HOST.$_SERVER['REQUEST_URI'];
 $refer_url=isset($_SERVER['HTTP_REFERER'])?$_SERVER['HTTP_REFERER']:'';
 $theme_url=RQ_HTTP.RQ_HOST.'/'.basename(RQ_DATA).'/themes/'.$theme;
 
+//ssl证书申请 https://github.com/Neilpang/acme.sh/wiki/%E8%AF%B4%E6%98%8E 注意ns要支持 DNSSEC
+
 doAction('before_router');
 include_once $coreView;
 include_once $tempView;
