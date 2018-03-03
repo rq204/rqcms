@@ -44,7 +44,8 @@ $wpcc_variant='zh-hans';
 
 function chinese_before_router()
 {
-	global $request_arr,$wpcc_langs,$headArr;
+	global $request_arr,$wpcc_langs,$headArr,$views;
+	if($views=='404') return;
 	$pureurl=implode('/',$request_arr);
 	$temp='<link rel="alternate" href="/zh-sg/'.$pureurl.'" hreflang="zh-SG" />';
 	foreach($wpcc_langs as $key=>$lan)

@@ -57,16 +57,6 @@ function cacheControl($lastmodified,$ETag='')
 	}
 }
 
-function run404()
-{
-	global $theme;
-	header('HTTP/1.1 404 Not Found');
-	header('Content-Type: text/html; charset=UTF-8');
-	include RQ_DATA.'/themes/'.$theme.'/404.php';
-	ob_flush();
-	exit;
-}
-
 //显示头部增加的信息
 function viewhead()
 {

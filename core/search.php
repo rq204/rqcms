@@ -1,13 +1,12 @@
 <?php
 $searchd = $arg1;
-if(!$searchd) run404();
 $searchd=htmlspecialchars($searchd);
 
 if($arg2) $cur_page_num=intval($arg2);
 if(!$cur_page_num) $cur_page_num=1;
 
 
-if($searchkey)
+if($searchd)
 {
 	$articledb=array();
 	//过滤及检测
