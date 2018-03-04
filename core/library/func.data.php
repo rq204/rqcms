@@ -108,5 +108,6 @@ function fillArticle($article)
 	$article['url']='/'.$setting['option']['article'].'/'.$article['aid'].'.html';
 	$article['cateurl']='/'.$category[$article['cateid']]['url'];
 	$article['catename']=$category[$article['cateid']]['name'];
+	$article['excerpt']=htmlspecialchars($article['excerpt']);
 	return $article;
 }

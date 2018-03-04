@@ -36,7 +36,7 @@ function chinese_init()
 	{
 		$wpcc_variant=$request_arr[0];
 		unset($request_arr[0]);
-		$_SERVER['REQUEST_URI']=implode('/',$request_arr);
+		$_SERVER['REQUEST_URI']='/'.implode('/',$request_arr);
 	}
 }
 
@@ -78,6 +78,8 @@ function chinese_conversion_before_output()
 				$output=str_replace("\"/{$cate['url']}","\"/{$wpcc_variant}/{$cate['url']}",$output);
 				$output=str_replace("'/{$cate['url']}","'/{$wpcc_variant}/{$cate['url']}",$output);
 			}
+			$output=str_replace('href="/"','href="/'.$wpcc_variant.'"',$output);
+			$output=str_replace("href='/'","href='/{$wpcc_variant}'",$output);
 		}
 
 		//html
