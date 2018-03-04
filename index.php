@@ -8,7 +8,7 @@
  */
 
 //核心参数
-define('RQ_VERS','3.0.1801');
+define('RQ_VERS','3.1.1803');
 define('RQ_ROOT',dirname(__file__));
 define('RQ_CORE',RQ_ROOT.'/core');
 define('RQ_DATA',RQ_ROOT.'/data');
@@ -135,11 +135,18 @@ $coreView=RQ_CORE.'/'.$views.'.php';//核心处理文件
 $tempView=RQ_DATA.'/themes/'.$theme.'/'.$views.'.php';//风格模板文件
 $contentType='Content-Type: text/html; charset=UTF-8';
 
-//特别几个网址的处理
+//特别几个全网址的处理
 $host_url=RQ_HTTP.RQ_HOST;
 $page_url=RQ_HTTP.RQ_HOST.$_SERVER['REQUEST_URI'];
 $refer_url=isset($_SERVER['HTTP_REFERER'])?$_SERVER['HTTP_REFERER']:'';
 $theme_url=RQ_HTTP.RQ_HOST.'/'.basename(RQ_DATA).'/themes/'.$theme;
+
+//页面约定参数
+$cur_page=1;//当前页页码
+$all_page=0;//查询总页数
+$all_record=0;//总记录数
+$next_url='';//下一页网址
+$articledb=array();//文章数据
 
 //ssl证书申请 https://github.com/Neilpang/acme.sh/wiki/%E8%AF%B4%E6%98%8E 注意ns要支持 DNSSEC
 

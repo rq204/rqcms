@@ -16,7 +16,6 @@ foreach($category as $cate)
 <?php
 //
 $allarticle=0;
-$cur_page=1;
 if($arg1) $cur_page=intval($arg1);
 if($cur_page==0) $cur_page=1;
 foreach($category as $cate) $allarticle+=$cate['count'];

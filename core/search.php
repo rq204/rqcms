@@ -8,7 +8,6 @@ if(!$cur_page_num) $cur_page_num=1;
 
 if($searchd)
 {
-	$articledb=array();
 	//过滤及检测
 	if(strlen($searchkey) < 2) 
 	{
