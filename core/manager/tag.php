@@ -251,7 +251,7 @@ function rebuildtag($tagindex,$indexurl)
 	if(count($list)==0)
 	{	
 		//http://blog.csdn.net/eroswang/article/details/4027986
-		$DB->query("SET GLOBAL group_concat_max_len=1024000");
+		//$DB->query("SET GLOBAL group_concat_max_len=1024000");可以在 mysql中添加并修改
 		$tagquery=$DB->query("select tag,GROUP_CONCAT(`aids`) as aids from {$dbprefix}temp group by tag");
 		$tagsql="insert into {$dbprefix}tag (`tag`,`aids`) values ";
 		while($data=$DB->fetch_array($tagquery))
