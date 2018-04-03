@@ -37,7 +37,7 @@ function cacheControl($lastmodified,$ETag='')
 	{
 		if($_SERVER['HTTP_IF_MODIFIED_SINCE']==$lastmodified)
 		{
-			header('HTTP/1.0 304 Not Modified');
+			header('HTTP/1.1 304 Not Modified');
 			exit;
 		}
 	}
@@ -45,7 +45,7 @@ function cacheControl($lastmodified,$ETag='')
 	{
 		if($_SERVER['HTTP_IF_NONE_MATCH']==$ETag)
 		{
-			header('HTTP/1.0 304 Not Modified');
+			header('HTTP/1.1 304 Not Modified');
 			exit;
 		}
 	}

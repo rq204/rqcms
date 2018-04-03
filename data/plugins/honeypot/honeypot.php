@@ -20,7 +20,7 @@ function honeypot_404_before_output()
 			if($head)
 			{
 				header('Content-Type: application/'.$ext);
-				header('HTTP/1.0 200 OK');
+				header('HTTP/1.1 200 OK');
 			}
 			else
 			{
@@ -39,7 +39,7 @@ function honeypot_404_before_output()
 			if($head)
 			{
 				header('Content-Type: text/html'); 
-				header('HTTP/1.0 200 OK');
+				header('HTTP/1.1 200 OK');
 			}
 			else
 			{
