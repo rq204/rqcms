@@ -177,11 +177,11 @@ else if($action=='tagrebuilt')
 	if(isset($_GET['tagindex']))
 	{
 		$tagindex=intval($_GET['tagindex']);
-		rebuildtag($tagindex,'?file=seo&action=tagrebuilt');
+		rebuildtag($tagindex,'?file=tag&action=tagrebuilt');
 	}
 	else
 	{
-		redirect('Tag更新全部完成', '?file=seo');
+		redirect('Tag更新全部完成', '?file=tag');
 	}
 }
 
@@ -225,58 +225,55 @@ function rebuildtag($tagindex,$indexurl)
 	if($tagindex==0)
 	{
 		$DB->query("TRUNCATE `{$dbprefix}tag`");
+		$DB->query("DROP TABLE IF EXISTS `{$dbprefix}temp`");
+		$sql="CREATE TABLE `{$dbprefix}temp` (`tag` varchar(50) NOT NULL,`aids` text NOT NULL) ENGINE=innodb DEFAULT CHARSET=utf8;";
+		$DB->query($sql);
 	}
 	
-	$tagquery=$DB->query("Select tag,aid from {$dbprefix}article where aid>$tagindex and tag!='' limit 5000");
+	$tagquery=$DB->query("Select aid,tag from {$dbprefix}article where aid>$tagindex order by aid asc limit 10000");
 	while($data=$DB->fetch_array($tagquery))
 	{
+		$tagindex=$data['aid'];
+		if(!$data['tag']) continue;
 		$tagarr=explode(',',$data['tag']);
 		$newtag=array();
 		foreach($tagarr as $tagname)
 		{
-			$tagname=cleartag($tagname);
+			$tagname=trim($tagname);
 			if($tagname&&strlen($tagname)>1)
 			{			
 				$list[$tagname][]=$data['aid'];
 				$newtag[]=$tagname;
 			}
 		}
-		$tagindex=$data['aid'];
-		$newtag=implode(',',$newtag);
-		if($newtag!=$data['tag'])
-		{
-			$newtag=addslashes($newtag);
-			$DB->query("update {$dbprefix}article set tag='$newtag' where aid=$tagindex");
-		}
 	}
 	
-	$DB->query("DROP TABLE IF EXISTS `mtemp`");
-  
 	if(count($list)==0)
 	{	
-		$DB->query("create table `mtemp` select tag,GROUP_CONCAT(`aids`) as aids from `{$dbprefix}tag` GROUP BY tag");
-		$DB->query("TRUNCATE `{$dbprefix}tag`");
-		$DB->query("insert into {$dbprefix}tag (`tag`,`aids`) select tag,aids from mtemp");
-		Jump('tag升级完成',$indexurl);
+		//http://blog.csdn.net/eroswang/article/details/4027986
+		//$DB->query("SET GLOBAL group_concat_max_len=1024000");可以在 mysql中添加并修改
+		$tagquery=$DB->query("select tag,GROUP_CONCAT(`aids`) as aids from {$dbprefix}temp group by tag");
+		$tagsql="insert into {$dbprefix}tag (`tag`,`aids`) values ";
+		while($data=$DB->fetch_array($tagquery))
+		{
+			$tagsql.="('{$data['tag']}','{$data['aids']}'),";
+		}
+		$tagsql=trim($tagsql,',');
+		$DB->query($tagsql);
+		$DB->query("DROP TABLE `{$dbprefix}temp`");
+		redirect('tag升级完成',$indexurl);
 	}
 	
-	$sql="CREATE TABLE `mtemp` (`tag` varchar(20) NOT NULL,`aids` varchar(500) NOT NULL) ENGINE=MEMORY DEFAULT CHARSET=utf8;";
-	$DB->query($sql);
+
+	$insertsql="insert into `{$dbprefix}temp` (`tag`,`aids`) values ";
 	foreach($list as $tagname=>$data)
 	{
 		$aids=implode(',',$data);
 		$tagname=addslashes($tagname);
-		if(strlen($aids)>500)
-		{
-			$DB->query("insert into `{$dbprefix}tag` (`tag`,`aids`) values ('$tagname','$aids')");	
-		}
-		else
-		{
-			$DB->query("insert into `mtemp` (`tag`,`aids`) values ('$tagname','$aids')");
-		}
+		$insertsql.= "('$tagname','$aids'),";
 	}
-
-	$DB->query("insert into {$dbprefix}tag (`tag`,`aids`) select tag,aids from mtemp");
-	$DB->query("DROP TABLE IF EXISTS `mtemp`");
-	Jump('继续升级tag中,下次更新文章id'.$tagindex,$indexurl."&tagindex=$tagindex");
+	$insertsql=trim($insertsql,',');
+	$DB->query($insertsql);
+	
+	redirect('继续升级tag中,下次更新文章id'.$tagindex,$indexurl."&tagindex=$tagindex",1);
 }

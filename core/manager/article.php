@@ -202,9 +202,21 @@ else
 		{
 			$item = addslashes($tag);
 			$tagaids=gettagids($item);
+			
 			if($tagaids)
 			{
-				$query=$DB->query("Select a.*,c.name as cname from {$dbprefix}article a LEFT JOIN {$dbprefix}category c ON c.cid=a.cateid where a.aid in ($tagaids)");
+				$aidsarr=explode(',',$tagaids);
+				arsort($aidsarr,1);
+				$all_tag_total=count($aidsarr);
+				$pagenum=@ceil($all_tag_total/30);
+				if($page>$pagenum) $page=$pagenum;
+				$start = ($page - 1) * 30;
+				$selectnum=30;
+				if($selectnum+$start>$all_tag_total) $selectnum=$all_tag_total-$start;
+				$listaids=array_slice($aidsarr,$start,$selectnum);
+				$aidstr=implode_ids($listaids);
+
+				$query=$DB->query("Select a.*,c.name as cname from {$dbprefix}article a LEFT JOIN {$dbprefix}category c ON c.cid=a.cateid where a.aid in ($aidstr) order by a.aid desc");
 				$tagarr=explode(',',$tagaids);
 				$total=count($tagarr);
 			}

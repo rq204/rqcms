@@ -1,5 +1,4 @@
 <?php
-$cur_page=1;
 if($arg2) $cur_page=intval($arg2);
 if(!$cur_page) $cur_page=1;
 
@@ -17,10 +16,10 @@ if($cur_page==0) $cur_page=1;
 $start=($cur_page-1)*$setting['option']['per_page_articles'];
 //$query=$DB->query("select * from {$dbprefix}article where  cateid={$cateArr['cid']} order by aid desc limit {$start},{$setting['option']['per_page_articles']}");
 $query=$DB->query("select * from {$dbprefix}article a where a.aid in (select b.i as id from (select aid as i from {$dbprefix}article c where c.cateid={$cateArr['cid']} order by c.aid desc limit {$start},{$setting['option']['per_page_articles']}) b)");
-$articledb=array();
+
 while($row=$DB->fetch_array($query))
 {
 	$articledb[$row['aid']]=fillArticle($row);
 }
-
+$next_url='/'.$cateArr['url'].'/'. ($cur_page+1);
 doAction('category_before_view');

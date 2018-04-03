@@ -2,7 +2,6 @@
 $title=$setting['option']['name'];
 include RQ_DATA."/themes/$theme/header.php";
 ?>
-
 显示所有栏目<br />
 <?php
 foreach($category as $cate)
@@ -17,7 +16,6 @@ foreach($category as $cate)
 <?php
 //
 $allarticle=0;
-$cur_page=1;
 if($arg1) $cur_page=intval($arg1);
 if($cur_page==0) $cur_page=1;
 foreach($category as $cate) $allarticle+=$cate['count'];

@@ -22,7 +22,7 @@ function getCateArticle($page=1,$cateid=0,$limit='')
 }
 
 ///得到tag文章
-function getTagArticle($tag,$page,$aid='',$limit='')
+function getTagArticle($tag,$page,$aid='',$limit='',$rand=false)
 {
 	global $DB,$dbprefix;
 	$articledb=array();
@@ -30,10 +30,11 @@ function getTagArticle($tag,$page,$aid='',$limit='')
 
 	if(!$tagarr) return $articledb;
 	
-	$aidarr=array();
-	$dbaids=explode(',',$tagarr['aids']);
-	$aidarr=array_merge($aidarr,$dbaids);
+	$aidarr=explode(',',$tagarr['aids']);
 	if(!$aidarr) return $articledb;
+
+	$aidarr=array_unique($aidarr);
+	if($aid) unset($aidarr[$aid]);
 
 	if(!$limit)	$limit=$setting['option']['per_page_articles'];
 	$aidcount=count($aidarr);
@@ -41,20 +42,26 @@ function getTagArticle($tag,$page,$aid='',$limit='')
 	if($page>$tatolpage) $page=$tatolpage;
 
 	$start=($page-1)*$limit;
-	if($start+$limit>$aidcount) $limt=$aidcount-$start;
+	if($start+$limit>$aidcount) $limit=$aidcount-$start;
 
-	$aidarr=array_unique($aidarr);
-	if($aid) unset($aidarr[$aid]);
-	arsort($aidarr);
-	//
+	if($rand)
+	{
+		shuffle($aidarr);
+	}
+	else
+	{
+		arsort($aidarr);
+		
+	}
+
 	$aidarr=array_slice($aidarr,$start,$limit);
 	$aids=implode_ids($aidarr);
-	$query=$DB->query("Select * from `{$dbprefix}article` where aid in ($aids) order by aid desc");
+	$randsql=$rand?'':' order by aid desc';
+	$query=$DB->query("Select * from `{$dbprefix}article` where aid in ($aids)$randsql");
 	while($article=$DB->fetch_array($query))
 	{
 		$articledb[$article['aid']]=fillArticle($article);
 	}
-		
 	return $articledb;
 }
 
@@ -101,5 +108,6 @@ function fillArticle($article)
 	$article['url']='/'.$setting['option']['article'].'/'.$article['aid'].'.html';
 	$article['cateurl']='/'.$category[$article['cateid']]['url'];
 	$article['catename']=$category[$article['cateid']]['name'];
+	$article['excerpt']=htmlspecialchars($article['excerpt']);
 	return $article;
 }

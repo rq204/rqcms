@@ -5,6 +5,10 @@
 RewriteEngine On
 RewriteBase /
 
+#http强制转https
+#RewriteCond %{SERVER_PORT} !^443$
+#RewriteRule ^(.*)?$ https://%{SERVER_NAME}/$1 [L,R]
+
 #L意思为立即停止重写操作，并不再应用其他重写规则
 RewriteRule ^/+?$ /index.php [L]
 RewriteRule ^$ /index.php [L]
@@ -18,3 +22,8 @@ RewriteRule ^.*$ /index.php [L]
 RewriteRule ^[^/]*?/.*?\.(php|sql|file|txt).*?$ /index.php [L]
 
 </IfModule>
+
+#禁止列出目录
+<Files *>
+Options -Indexes
+</Files>

@@ -36,7 +36,7 @@ function chinese_init()
 	{
 		$wpcc_variant=$request_arr[0];
 		unset($request_arr[0]);
-		$_SERVER['REQUEST_URI']=implode('/',$request_arr);
+		$_SERVER['REQUEST_URI']='/'.implode('/',$request_arr);
 	}
 }
 
@@ -44,7 +44,8 @@ $wpcc_variant='zh-hans';
 
 function chinese_before_router()
 {
-	global $request_arr,$wpcc_langs,$headArr;
+	global $request_arr,$wpcc_langs,$headArr,$views;
+	if($views=='404') return;
 	$pureurl=implode('/',$request_arr);
 	$temp='<link rel="alternate" href="/zh-sg/'.$pureurl.'" hreflang="zh-SG" />';
 	foreach($wpcc_langs as $key=>$lan)
@@ -77,6 +78,8 @@ function chinese_conversion_before_output()
 				$output=str_replace("\"/{$cate['url']}","\"/{$wpcc_variant}/{$cate['url']}",$output);
 				$output=str_replace("'/{$cate['url']}","'/{$wpcc_variant}/{$cate['url']}",$output);
 			}
+			$output=str_replace('href="/"','href="/'.$wpcc_variant.'"',$output);
+			$output=str_replace("href='/'","href='/{$wpcc_variant}'",$output);
 		}
 
 		//html
